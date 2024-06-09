@@ -1,4 +1,4 @@
-import { collection, getDocs, orderBy, query, limit, onSnapshot } from "firebase/firestore";
+import { collection, /*getDocs,*/ orderBy, query, limit, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { styled } from "styled-components";
 import { db } from "../firebase";
@@ -27,7 +27,8 @@ export default function Timeline() {
         const fetchTweets = async () => {
             const tweetsQuery = query(
                 collection(db, "tweets"),
-                orderBy("createdAt", "desc")
+                orderBy("createdAt", "desc"),
+                limit(30)
             );
             /* const snapshot = await getDocs(tweetsQuery);
             const tweets = snapshot.docs.map((doc)=> {
