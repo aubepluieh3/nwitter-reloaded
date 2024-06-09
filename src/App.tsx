@@ -14,10 +14,14 @@ import ProtectedRoute from "./components/protected-route";
 const router = createBrowserRouter([
   {
     path:"/",
-    element:<ProtectedRoute><Layout /></ProtectedRoute>,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+      ),
     children: [ // layout component 내부에서 render 됨
       {
-        path:"",
+        path:"/",
         element: <Home />,
       }, 
       {
