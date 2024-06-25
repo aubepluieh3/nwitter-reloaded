@@ -38,6 +38,10 @@ const Name = styled.span`
   font-size: 22px;
 `;
 
+const ButtonArea = styled.div`
+
+`;
+
 const Tweets = styled.div `
   display:flex;
   width:100%;
@@ -45,10 +49,48 @@ const Tweets = styled.div `
   gap: 10px;
 `;
 
+const EditBtn = styled.button`
+    background-color: orange;
+    color: white;
+    font-weight: 600;
+    border: 0;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    cursor: pointer;
+`;
+
+const CancelBtn = styled.button`
+    background-color: grey;
+    color: white;
+    font-weight: 600;
+    border: 0;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5px;
+`;
+
+const SaveBtn = styled.button`
+    background-color: orange;
+    color: white;
+    font-weight: 600;
+    border: 0;
+    font-size: 12px;
+    padding: 5px 10px;
+    text-transform: uppercase;
+    border-radius: 5px;
+    cursor: pointer;
+`;
+
 export default function Profile() {
     const user = auth.currentUser;
     const [avatar, setAvatar] = useState(user?.photoURL);
     const [tweets, setTweets] = useState<ITweet[]>([]);
+    const [isEditing, setEditing] = useState(false);
     const onAvatarChange =async (e:React.ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target;
         if(!user) return;
@@ -63,30 +105,43 @@ export default function Profile() {
             });
         }
     };
+
+    const onEdit = async() => {
+        setEditing(true);
+    };
+
+    const onSave = async () => {
+        setEditing(false);
+    };
+
+    const onCancel = async() => {
+        setEditing(false);
+    };
+
     const fetchTweets = async () => {
         const tweetQuery = query(
-          collection(db, "tweets"),
-          where("userId", "==", user?.uid),
-          orderBy("createdAt", "desc"),
-          limit(25)
+            collection(db, "tweets"),
+            where("userId", "==", user?.uid),
+            orderBy("createdAt", "desc"),
+            limit(25)
         );
         const snapshot = await getDocs(tweetQuery);
         const tweets = snapshot.docs.map((doc) => {
-          const { tweet, createdAt, userId, username, photo } = doc.data();
-          return {
-            tweet,
-            createdAt,
-            userId,
-            username,
-            photo,
-            id: doc.id,
-          };
-        });
-        setTweets(tweets);
-      };
-      useEffect(() => {
+            const { tweet, createdAt, userId, username, photo } = doc.data();
+                return {
+                    tweet,
+                    createdAt,
+                    userId,
+                    username,
+                    photo,
+                    id: doc.id,
+                };
+            });
+            setTweets(tweets);
+        };
+    useEffect(() => {
         fetchTweets();
-      }, []);
+    }, []);
     return (
         <Wrapper>
             <AvatarUpload htmlFor="avatar"> 
@@ -106,7 +161,19 @@ export default function Profile() {
                 type="file"
                 accept="image/*"
             />
-            <Name>{user?.displayName ?? "Anonymous"}</Name>
+            <Name>
+                {user?.displayName ?? "Anonymous"}
+            </Name>
+            <ButtonArea>
+                {isEditing ? (
+                        <>
+                            <CancelBtn onClick = {onCancel}>Cancel</CancelBtn>
+                            <SaveBtn onClick = {onSave}>Save</SaveBtn>
+                        </>
+                    ) : (
+                        <EditBtn onClick = {onEdit}>Edit</EditBtn>
+                )}
+            </ButtonArea>
             <Tweets>
                 {tweets.map((tweet) => (
                     <Tweet key={tweet.id} {...tweet} />
