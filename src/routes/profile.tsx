@@ -38,8 +38,21 @@ const Name = styled.span`
   font-size: 22px;
 `;
 
-const ButtonArea = styled.div`
+const BtnArea = styled.div`
 
+`;
+
+const NameArea  = styled.div`
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Input = styled.input`
+  font-size: 18px;
+  padding: 5px;
+  margin-bottom: 5px;
 `;
 
 const Tweets = styled.div `
@@ -49,41 +62,48 @@ const Tweets = styled.div `
   gap: 10px;
 `;
 
+const ActionBtnArea = styled.div`
+  justify-content: center;
+  align-items: center;
+  display: flex;
+`;
+
 const EditBtn = styled.button`
-    background-color: orange;
-    color: white;
-    font-weight: 600;
-    border: 0;
-    font-size: 12px;
-    padding: 5px 10px;
-    text-transform: uppercase;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: orange;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 3px;
 `;
 
 const CancelBtn = styled.button`
-    background-color: grey;
-    color: white;
-    font-weight: 600;
-    border: 0;
-    font-size: 12px;
-    padding: 5px 10px;
-    text-transform: uppercase;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-right: 5px;
+  background-color: grey;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 5px;
 `;
 
 const SaveBtn = styled.button`
-    background-color: orange;
-    color: white;
-    font-weight: 600;
-    border: 0;
-    font-size: 12px;
-    padding: 5px 10px;
-    text-transform: uppercase;
-    border-radius: 5px;
-    cursor: pointer;
+  background-color: orange;
+  color: white;
+  font-weight: 600;
+  border: 0;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  border-radius: 5px;
+  cursor: pointer;
 `;
 
 export default function Profile() {
@@ -91,6 +111,7 @@ export default function Profile() {
     const [avatar, setAvatar] = useState(user?.photoURL);
     const [tweets, setTweets] = useState<ITweet[]>([]);
     const [isEditing, setEditing] = useState(false);
+    const [name, setName] = useState(user?.displayName);
     const onAvatarChange =async (e:React.ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target;
         if(!user) return;
@@ -111,11 +132,23 @@ export default function Profile() {
     };
 
     const onSave = async () => {
-        setEditing(false);
+        if (!user || name === "") return;
+        try {
+            await updateProfile(user, { displayName: name });
+        } catch {
+
+        } finally {
+            setEditing(false);
+        }
     };
 
     const onCancel = async() => {
+        setName(user?.displayName)
         setEditing(false);
+    };
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value);
     };
 
     const fetchTweets = async () => {
@@ -161,19 +194,29 @@ export default function Profile() {
                 type="file"
                 accept="image/*"
             />
-            <Name>
-                {user?.displayName ?? "Anonymous"}
-            </Name>
-            <ButtonArea>
+            <NameArea>
                 {isEditing ? (
-                        <>
-                            <CancelBtn onClick = {onCancel}>Cancel</CancelBtn>
-                            <SaveBtn onClick = {onSave}>Save</SaveBtn>
-                        </>
-                    ) : (
-                        <EditBtn onClick = {onEdit}>Edit</EditBtn>
-                )}
-            </ButtonArea>
+                    <Input
+                    value={name ?? ""}
+                    onChange={onChange}
+                    placeholder="Write New Name"
+                    required
+                  />
+                ) : ( <Name> 
+                        {user?.displayName ?? "Anonymous"}
+                    </Name>)
+                }
+                <BtnArea>
+                    {isEditing ? (
+                            <ActionBtnArea>
+                                <CancelBtn onClick = {onCancel}>Cancel</CancelBtn>
+                                <SaveBtn onClick = {onSave}>Save</SaveBtn>
+                            </ActionBtnArea>
+                        ) : (
+                            <EditBtn onClick = {onEdit}>Edit</EditBtn>
+                    )}
+                </BtnArea>
+            </NameArea>
             <Tweets>
                 {tweets.map((tweet) => (
                     <Tweet key={tweet.id} {...tweet} />
