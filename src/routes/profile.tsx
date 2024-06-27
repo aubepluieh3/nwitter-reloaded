@@ -49,10 +49,11 @@ const NameArea  = styled.div`
   flex-direction: column;
 `;
 
-const Input = styled.input`
-  font-size: 18px;
+const NameInput = styled.input`
+  font-size: 22px;
   padding: 5px;
   margin-bottom: 5px;
+  text-align: center;
 `;
 
 const Tweets = styled.div `
@@ -78,7 +79,7 @@ const EditBtn = styled.button`
   text-transform: uppercase;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 3px;
+  margin-top: 5px;
 `;
 
 const CancelBtn = styled.button`
@@ -132,13 +133,14 @@ export default function Profile() {
     };
 
     const onSave = async () => {
-        if (!user || name === "") return;
-        try {
-            await updateProfile(user, { displayName: name });
-        } catch {
-
-        } finally {
-            setEditing(false);
+        if (user && name) {
+            try {
+                await updateProfile(user, { displayName: name });
+            } catch(e) {
+                console.error("Error updating profile:", e);
+            } finally {
+                setEditing(false);
+            }
         }
     };
 
@@ -196,10 +198,10 @@ export default function Profile() {
             />
             <NameArea>
                 {isEditing ? (
-                    <Input
+                    <NameInput
                     value={name ?? ""}
                     onChange={onChange}
-                    placeholder="Write New Name"
+                    placeholder="Please enter a new name."
                     required
                   />
                 ) : ( <Name> 
